@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/*
+  Design tokens - Sistema de diseno neutral y profesional.
+  Cambia SOLO estas variables para adaptar toda la plantilla a cada proyecto.
+
+  En Tailwind v4 cada variable del bloque @theme genera utilidades:
+    --color-surface   -> bg-surface, text-surface, border-surface...
+    --color-ink-muted -> text-ink-muted...
+    --radius-card     -> rounded-card
+*/
+
+/* La variante dark: sigue la clase .dark que pone ThemeContext (no el SO). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  /* Acento monocromo: negro en tema claro (se invierte en .dark) */
+  --color-brand-50: #f5f5f5;
+  --color-brand-100: #e5e5e5;
+  --color-brand-500: #525252;
+  --color-brand-600: #171717;
+  --color-brand-700: #000000;
+  /* Texto sobre fondos brand-600/700 */
+  --color-on-brand: #ffffff;
+
+  /* Neutros - tema claro */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f5f5;
+  --color-border: #e5e5e5;
+  --color-ink: #0a0a0a;
+  --color-ink-muted: #5c5c5c;
+
+  --radius-card: 0.75rem;
+
+  /* Micro-animaciones: animate-fade-in, animate-scale-in */
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Tema oscuro: negro real + escala de grises, acento invertido a blanco */
+.dark {
+  color-scheme: dark;
+  --color-brand-50: #1f1f1f;
+  --color-brand-100: #2e2e2e;
+  --color-brand-500: #a3a3a3;
+  --color-brand-600: #f5f5f5;
+  --color-brand-700: #ffffff;
+  --color-on-brand: #0a0a0a;
+
+  --color-surface: #0f0f0f;
+  --color-surface-muted: #000000;
+  --color-border: #262626;
+  --color-ink: #f5f5f5;
+  --color-ink-muted: #a3a3a3;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background: var(--color-surface-muted);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-ink-muted) 35%, transparent);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Superficie translucida (topbar, sidebar, nav movil). Funciona en ambos temas. */
+@utility glass {
+  background-color: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Flecha de los <select> */
+@utility select-caret {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1.1rem;
+}
+
+/* Accesibilidad: respeta a quien desactiva animaciones en el SO */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
