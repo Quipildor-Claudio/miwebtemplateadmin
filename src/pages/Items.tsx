@@ -19,6 +19,7 @@ import {
 } from '../lib/mockData'
 import {
   IconDotsVertical,
+  IconDownload,
   IconInbox,
   IconPencil,
   IconPlus,
@@ -27,6 +28,8 @@ import {
 } from '../components/ui/icons'
 import { useToast } from '../context/ToastContext'
 import { SkeletonTable } from '../components/ui/Skeleton'
+import { Checkbox } from '../components/ui/Checkbox'
+import { exportToCsv } from '../lib/exportCsv'
 import {
   Dropdown,
   DropdownDivider,
@@ -84,6 +87,8 @@ export function ItemsPage() {
     dir: 'asc',
   })
 
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Item | null>(null)
   const [toDelete, setToDelete] = useState<Item | null>(null)
@@ -130,6 +135,82 @@ export function ItemsPage() {
   }, [items, busqueda, categoria, estado, sort])
 
   const pager = usePagination(filtrados, 10)
+
+  const isSelected = (id: number) => selectedIds.has(id)
+
+  function toggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const isAllPageSelected =
+    pager.slice.length > 0 && pager.slice.every((it) => selectedIds.has(it.id))
+
+  const isSomePageSelected =
+    pager.slice.some((it) => selectedIds.has(it.id)) && !isAllPageSelected
+
+  function toggleSelectAllOnPage() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (isAllPageSelected) {
+        pager.slice.forEach((it) => next.delete(it.id))
+      } else {
+        pager.slice.forEach((it) => next.add(it.id))
+      }
+      return next
+    })
+  }
+
+  function handleExport(selectedOnly = false) {
+    const dataToExport = selectedOnly
+      ? items.filter((it) => selectedIds.has(it.id))
+      : filtrados
+
+    if (dataToExport.length === 0) {
+      toast.warning('No hay datos para exportar.')
+      return
+    }
+
+    exportToCsv(
+      selectedOnly ? 'elementos_seleccionados' : 'inventario_elementos',
+      dataToExport,
+      [
+        { key: 'id', label: 'ID' },
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'categoria', label: 'Categoría' },
+        { key: 'estado', label: 'Estado' },
+        { key: 'responsable', label: 'Responsable' },
+        { key: 'fecha', label: 'Fecha' },
+      ],
+    )
+
+    toast.success(`Se exportaron ${dataToExport.length} elementos a formato CSV con éxito.`, {
+      title: 'Exportación lista',
+    })
+  }
+
+  function bulkChangeStatus(nuevoEstado: ItemStatus) {
+    const count = selectedIds.size
+    setItems((prev) =>
+      prev.map((it) => (selectedIds.has(it.id) ? { ...it, estado: nuevoEstado } : it)),
+    )
+    toast.success(`Se actualizaron ${count} elementos al estado "${nuevoEstado}".`)
+    setSelectedIds(new Set())
+  }
+
+  function confirmBulkDelete() {
+    const count = selectedIds.size
+    setItems((prev) => prev.filter((it) => !selectedIds.has(it.id)))
+    toast.info(`Se eliminaron ${count} elementos del sistema.`, {
+      title: 'Eliminación masiva',
+    })
+    setSelectedIds(new Set())
+    setBulkDeleteOpen(false)
+  }
 
   function toggleSort(key: SortKey) {
     setSort((s) =>
@@ -179,9 +260,16 @@ export function ItemsPage() {
     <>
       <PageHeader
         title="Elementos"
-        description="Gestiona el inventario de elementos del sistema."
+        description="Gestiona el inventario de elementos del sistema con filtros, selección masiva y exportación."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              leftIcon={<IconDownload size={15} />}
+              onClick={() => handleExport(false)}
+            >
+              Exportar CSV
+            </Button>
             <Button variant="secondary" onClick={simulateReload} disabled={loading}>
               {loading ? 'Cargando…' : 'Simular Carga'}
             </Button>
@@ -239,6 +327,55 @@ export function ItemsPage() {
           )}
         </div>
 
+        {/* Barra de acciones masivas cuando hay filas seleccionadas */}
+        {selectedIds.size > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-500/20 bg-brand-500/10 px-4 py-2.5 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold text-ink">
+                {selectedIds.size}{' '}
+                {selectedIds.size === 1 ? 'elemento seleccionado' : 'elementos seleccionados'}
+              </span>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                className="text-xs text-ink-muted hover:text-ink underline cursor-pointer"
+              >
+                Deseleccionar todos
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon={<IconDownload size={14} />}
+                onClick={() => handleExport(true)}
+              >
+                Exportar ({selectedIds.size})
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => bulkChangeStatus('activo')}
+              >
+                Marcar activos
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => bulkChangeStatus('inactivo')}
+              >
+                Marcar inactivos
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => setBulkDeleteOpen(true)}
+              >
+                Eliminar ({selectedIds.size})
+              </Button>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="p-4">
             <SkeletonTable rows={7} columns={5} />
@@ -269,11 +406,19 @@ export function ItemsPage() {
             <TableWrap>
               <THead>
                 <tr>
+                  <Th className="w-10">
+                    <Checkbox
+                      aria-label="Seleccionar todos los elementos visibles"
+                      checked={isAllPageSelected}
+                      indeterminate={isSomePageSelected}
+                      onChange={toggleSelectAllOnPage}
+                    />
+                  </Th>
                   {COLUMNS.map((col) => (
                     <Th key={col.key} className={col.className}>
                       <button
                         onClick={() => toggleSort(col.key)}
-                        className="inline-flex items-center hover:text-ink"
+                        className="inline-flex items-center hover:text-ink cursor-pointer"
                       >
                         {col.label}
                         <SortIcon dir={sort.key === col.key ? sort.dir : null} />
@@ -285,7 +430,17 @@ export function ItemsPage() {
               </THead>
               <TBody>
                 {pager.slice.map((it) => (
-                  <Tr key={it.id}>
+                  <Tr
+                    key={it.id}
+                    className={isSelected(it.id) ? 'bg-brand-500/5 font-medium' : undefined}
+                  >
+                    <Td className="w-10">
+                      <Checkbox
+                        aria-label={`Seleccionar ${it.nombre}`}
+                        checked={isSelected(it.id)}
+                        onChange={() => toggleSelect(it.id)}
+                      />
+                    </Td>
                     <Td className="text-ink-muted">#{it.id}</Td>
                     <Td className="font-medium">{it.nombre}</Td>
                     <Td>{it.categoria}</Td>
@@ -298,7 +453,7 @@ export function ItemsPage() {
                         <button
                           onClick={() => openEdit(it)}
                           aria-label="Editar"
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
                         >
                           <IconPencil size={15} />
                         </button>
@@ -306,7 +461,7 @@ export function ItemsPage() {
                         <Dropdown>
                           <DropdownTrigger
                             aria-label="Más opciones"
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors"
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
                           >
                             <IconDotsVertical size={15} />
                           </DropdownTrigger>
@@ -358,6 +513,28 @@ export function ItemsPage() {
         onClose={() => setModalOpen(false)}
         onSave={save}
       />
+
+      <Modal
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        title="Eliminar elementos seleccionados"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setBulkDeleteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={confirmBulkDelete}>
+              Eliminar ({selectedIds.size})
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-ink-muted">
+          ¿Seguro que deseas eliminar los{' '}
+          <span className="font-semibold text-ink">{selectedIds.size}</span> elementos seleccionados?
+          Esta acción no se puede deshacer.
+        </p>
+      </Modal>
 
       <Modal
         open={!!toDelete}

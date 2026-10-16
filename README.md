@@ -11,12 +11,13 @@ tokens de diseño y la navegación.
 - **Tema claro/oscuro** persistente (`ThemeContext`).
 - **Autenticacion simulada** con ruta protegida (`AuthContext` + `RequireAuth`).
 - **Dashboard** con tarjetas de metricas, mini grafico y tabla de recientes.
-- **Listado de elementos** con:
-  - barra de busqueda,
-  - filtros (categoria / estado),
-  - ordenamiento por columna,
-  - **paginacion**,
-  - alta/edicion en modal y confirmacion de borrado.
+- **Listado de elementos avanzado**:
+  - barra de busqueda y filtros (categoria / estado),
+  - ordenamiento por columna y **paginacion**,
+  - **seleccion masiva (Bulk Actions)** con Checkbox por fila o página completa,
+  - **acciones en lote**: cambio de estado grupal, eliminación múltiple con confirmación y exportación de seleccionados,
+  - **exportacion a CSV** (`exportToCsv`) con BOM UTF-8 para compatibilidad total con Excel,
+  - alta/edicion en modal y menú de acciones por fila (editar, duplicar, eliminar).
 - **Componentes UI reutilizables**: Button, Input, Textarea, Select, Switch,
   Checkbox, Badge, Card, Table, Pagination, Modal, PageHeader, EmptyState,
   StatCard, Skeleton (Card/Table), Tabs, Dropdown (menús flotantes) e iconos SVG propios.
