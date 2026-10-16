@@ -76,31 +76,51 @@ export function DashboardPage() {
       </div>
 
       <Card className="mt-4">
-        <CardHeader title="Ultimos elementos" />
-        <TableWrap>
-          <THead>
-            <tr>
-              <Th>ID</Th>
-              <Th>Nombre</Th>
-              <Th>Categoria</Th>
-              <Th>Estado</Th>
-              <Th>Fecha</Th>
-            </tr>
-          </THead>
-          <TBody>
-            {recientes.map((it) => (
-              <Tr key={it.id}>
-                <Td className="text-ink-muted">#{it.id}</Td>
-                <Td className="font-medium">{it.nombre}</Td>
-                <Td>{it.categoria}</Td>
-                <Td>
-                  <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
-                </Td>
-                <Td className="text-ink-muted">{it.fecha}</Td>
-              </Tr>
-            ))}
-          </TBody>
-        </TableWrap>
+        <CardHeader title="Ultimos elementos" description="Vista rápida de registros recientes" />
+        
+        {/* Vista tabla en pantallas sm o mayores */}
+        <div className="hidden sm:block">
+          <TableWrap>
+            <THead>
+              <tr>
+                <Th>ID</Th>
+                <Th>Nombre</Th>
+                <Th>Categoria</Th>
+                <Th>Estado</Th>
+                <Th>Fecha</Th>
+              </tr>
+            </THead>
+            <TBody>
+              {recientes.map((it) => (
+                <Tr key={it.id}>
+                  <Td className="text-ink-muted">#{it.id}</Td>
+                  <Td className="font-medium">{it.nombre}</Td>
+                  <Td>{it.categoria}</Td>
+                  <Td>
+                    <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
+                  </Td>
+                  <Td className="text-ink-muted">{it.fecha}</Td>
+                </Tr>
+              ))}
+            </TBody>
+          </TableWrap>
+        </div>
+
+        {/* Vista lista compacta en celulares */}
+        <div className="divide-y divide-border sm:hidden">
+          {recientes.map((it) => (
+            <div key={it.id} className="p-3.5 space-y-1.5 hover:bg-surface-muted/30 transition-colors">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-sm text-ink truncate">{it.nombre}</span>
+                <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
+              </div>
+              <div className="flex items-center justify-between text-xs text-ink-muted">
+                <span>{it.categoria}</span>
+                <span>{it.fecha}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </Card>
     </>
   )

@@ -30,6 +30,7 @@ import { useToast } from '../context/ToastContext'
 import { SkeletonTable } from '../components/ui/Skeleton'
 import { Checkbox } from '../components/ui/Checkbox'
 import { exportToCsv } from '../lib/exportCsv'
+import { cn } from '../lib/utils'
 import {
   Dropdown,
   DropdownDivider,
@@ -403,97 +404,205 @@ export function ItemsPage() {
           />
         ) : (
           <>
-            <TableWrap>
-              <THead>
-                <tr>
-                  <Th className="w-10">
-                    <Checkbox
-                      aria-label="Seleccionar todos los elementos visibles"
-                      checked={isAllPageSelected}
-                      indeterminate={isSomePageSelected}
-                      onChange={toggleSelectAllOnPage}
-                    />
-                  </Th>
-                  {COLUMNS.map((col) => (
-                    <Th key={col.key} className={col.className}>
-                      <button
-                        onClick={() => toggleSort(col.key)}
-                        className="inline-flex items-center hover:text-ink cursor-pointer"
-                      >
-                        {col.label}
-                        <SortIcon dir={sort.key === col.key ? sort.dir : null} />
-                      </button>
-                    </Th>
-                  ))}
-                  <Th className="w-20 text-right">Acciones</Th>
-                </tr>
-              </THead>
-              <TBody>
-                {pager.slice.map((it) => (
-                  <Tr
-                    key={it.id}
-                    className={isSelected(it.id) ? 'bg-brand-500/5 font-medium' : undefined}
-                  >
-                    <Td className="w-10">
+            {/* 1. Vista TABLA (pantallas medianas y de escritorio) */}
+            <div className="hidden md:block">
+              <TableWrap>
+                <THead>
+                  <tr>
+                    <Th className="w-10">
                       <Checkbox
-                        aria-label={`Seleccionar ${it.nombre}`}
-                        checked={isSelected(it.id)}
-                        onChange={() => toggleSelect(it.id)}
+                        aria-label="Seleccionar todos los elementos visibles"
+                        checked={isAllPageSelected}
+                        indeterminate={isSomePageSelected}
+                        onChange={toggleSelectAllOnPage}
                       />
-                    </Td>
-                    <Td className="text-ink-muted">#{it.id}</Td>
-                    <Td className="font-medium">{it.nombre}</Td>
-                    <Td>{it.categoria}</Td>
-                    <Td>
-                      <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
-                    </Td>
-                    <Td className="text-ink-muted">{it.fecha}</Td>
-                    <Td className="text-right">
-                      <div className="inline-flex items-center justify-end gap-1">
+                    </Th>
+                    {COLUMNS.map((col) => (
+                      <Th key={col.key} className={col.className}>
                         <button
-                          onClick={() => openEdit(it)}
-                          aria-label="Editar"
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
+                          onClick={() => toggleSort(col.key)}
+                          className="inline-flex items-center hover:text-ink cursor-pointer"
                         >
-                          <IconPencil size={15} />
+                          {col.label}
+                          <SortIcon dir={sort.key === col.key ? sort.dir : null} />
                         </button>
-
-                        <Dropdown>
-                          <DropdownTrigger
-                            aria-label="Más opciones"
+                      </Th>
+                    ))}
+                    <Th className="w-20 text-right">Acciones</Th>
+                  </tr>
+                </THead>
+                <TBody>
+                  {pager.slice.map((it) => (
+                    <Tr
+                      key={it.id}
+                      className={isSelected(it.id) ? 'bg-brand-500/5 font-medium' : undefined}
+                    >
+                      <Td className="w-10">
+                        <Checkbox
+                          aria-label={`Seleccionar ${it.nombre}`}
+                          checked={isSelected(it.id)}
+                          onChange={() => toggleSelect(it.id)}
+                        />
+                      </Td>
+                      <Td className="text-ink-muted">#{it.id}</Td>
+                      <Td className="font-medium">{it.nombre}</Td>
+                      <Td>{it.categoria}</Td>
+                      <Td>
+                        <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
+                      </Td>
+                      <Td className="text-ink-muted">{it.fecha}</Td>
+                      <Td className="text-right">
+                        <div className="inline-flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => openEdit(it)}
+                            aria-label="Editar"
                             className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
                           >
-                            <IconDotsVertical size={15} />
-                          </DropdownTrigger>
-                          <DropdownMenu width="w-36" align="right">
-                            <DropdownItem
-                              icon={<IconPencil size={14} />}
-                              onClick={() => openEdit(it)}
+                            <IconPencil size={15} />
+                          </button>
+
+                          <Dropdown>
+                            <DropdownTrigger
+                              aria-label="Más opciones"
+                              className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors cursor-pointer"
                             >
-                              Editar
-                            </DropdownItem>
-                            <DropdownItem
-                              icon={<IconPlus size={14} />}
-                              onClick={() => duplicate(it)}
-                            >
-                              Duplicar
-                            </DropdownItem>
-                            <DropdownDivider />
-                            <DropdownItem
-                              destructive
-                              icon={<IconTrash size={14} />}
-                              onClick={() => setToDelete(it)}
-                            >
-                              Eliminar
-                            </DropdownItem>
-                          </DropdownMenu>
-                        </Dropdown>
+                              <IconDotsVertical size={15} />
+                            </DropdownTrigger>
+                            <DropdownMenu width="w-36" align="right">
+                              <DropdownItem
+                                icon={<IconPencil size={14} />}
+                                onClick={() => openEdit(it)}
+                              >
+                                Editar
+                              </DropdownItem>
+                              <DropdownItem
+                                icon={<IconPlus size={14} />}
+                                onClick={() => duplicate(it)}
+                              >
+                                Duplicar
+                              </DropdownItem>
+                              <DropdownDivider />
+                              <DropdownItem
+                                destructive
+                                icon={<IconTrash size={14} />}
+                                onClick={() => setToDelete(it)}
+                              >
+                                Eliminar
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        </div>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </TableWrap>
+            </div>
+
+            {/* 2. Vista TARJETAS (en celulares, sin scroll horizontal) */}
+            <div className="divide-y divide-border md:hidden">
+              <div className="flex items-center justify-between bg-surface-muted/50 px-4 py-2.5 text-xs text-ink-muted">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    aria-label="Seleccionar todos"
+                    checked={isAllPageSelected}
+                    indeterminate={isSomePageSelected}
+                    onChange={toggleSelectAllOnPage}
+                  />
+                  <span>Seleccionar página</span>
+                </div>
+                <span className="font-medium text-ink">{pager.total} registros</span>
+              </div>
+
+              {pager.slice.map((it) => (
+                <div
+                  key={it.id}
+                  className={cn(
+                    'p-4 transition-colors space-y-3',
+                    isSelected(it.id) ? 'bg-brand-500/5' : 'bg-surface hover:bg-surface-muted/30',
+                  )}
+                >
+                  {/* Encabezado de la tarjeta móvil: Checkbox + Nombre + Estado + Opciones */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <div className="pt-0.5">
+                        <Checkbox
+                          aria-label={`Seleccionar ${it.nombre}`}
+                          checked={isSelected(it.id)}
+                          onChange={() => toggleSelect(it.id)}
+                        />
                       </div>
-                    </Td>
-                  </Tr>
-                ))}
-              </TBody>
-            </TableWrap>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm text-ink truncate leading-tight">
+                          {it.nombre}
+                        </p>
+                        <span className="text-[11px] text-ink-muted">#{it.id}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge tone={TONE[it.estado]}>{it.estado}</Badge>
+                      <Dropdown>
+                        <DropdownTrigger
+                          aria-label="Opciones"
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink cursor-pointer"
+                        >
+                          <IconDotsVertical size={16} />
+                        </DropdownTrigger>
+                        <DropdownMenu width="w-36" align="right">
+                          <DropdownItem icon={<IconPencil size={14} />} onClick={() => openEdit(it)}>
+                            Editar
+                          </DropdownItem>
+                          <DropdownItem icon={<IconPlus size={14} />} onClick={() => duplicate(it)}>
+                            Duplicar
+                          </DropdownItem>
+                          <DropdownDivider />
+                          <DropdownItem
+                            destructive
+                            icon={<IconTrash size={14} />}
+                            onClick={() => setToDelete(it)}
+                          >
+                            Eliminar
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown>
+                    </div>
+                  </div>
+
+                  {/* Datos complementarios en cuadrícula móvil */}
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-surface-muted/40 rounded-lg p-2.5 border border-border/50">
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-ink-muted tracking-wider block">
+                        Categoría
+                      </span>
+                      <span className="text-ink font-medium truncate block">{it.categoria}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-ink-muted tracking-wider block">
+                        Fecha
+                      </span>
+                      <span className="text-ink truncate block">{it.fecha}</span>
+                    </div>
+                    <div className="col-span-2 pt-1 border-t border-border/50">
+                      <span className="text-[10px] uppercase font-semibold text-ink-muted tracking-wider block">
+                        Responsable
+                      </span>
+                      <span className="text-ink font-medium truncate block">{it.responsable}</span>
+                    </div>
+                  </div>
+
+                  {/* Acciones directas táctiles */}
+                  <div className="flex items-center justify-end gap-2 pt-0.5">
+                    <Button size="sm" variant="secondary" onClick={() => openEdit(it)}>
+                      Editar
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => duplicate(it)}>
+                      Duplicar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="border-t border-border p-4">
               <Pagination
