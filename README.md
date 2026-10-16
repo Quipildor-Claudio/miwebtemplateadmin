@@ -19,9 +19,10 @@ tokens de diseño y la navegación.
   - alta/edicion en modal y confirmacion de borrado.
 - **Componentes UI reutilizables**: Button, Input, Textarea, Select, Switch,
   Checkbox, Badge, Card, Table, Pagination, Modal, PageHeader, EmptyState,
-  StatCard e iconos SVG propios.
+  StatCard, Skeleton (Card/Table), Tabs, Dropdown (menús flotantes) e iconos SVG propios.
 - **Sistema de notificaciones Toast**: `useToast()` (`toast.success`, `error`, `warning`, `info`) con animaciones fluidas y soporte claro/oscuro.
-- **Ajustes** de perfil, apariencia (tema), seguridad (2FA) y preferencias de notificación.
+- **Topbar funcional**: Menú desplegable de usuario (perfil, ajustes, logout) y panel de notificaciones con conteo no leído.
+- **Ajustes modularizados en pestañas**: Perfil, apariencia (tema), seguridad (2FA) y preferencias de notificación.
 
 ## Arrancar
 
@@ -52,7 +53,7 @@ src/
 │   ├── layout/   AppLayout, Sidebar, Topbar, MobileNav, navItems
 │   └── ui/       Button, Input, Textarea, Select, Switch, Checkbox, Badge,
 │                 Card, Table, Pagination, Modal, PageHeader, EmptyState,
-│                 StatCard, icons
+│                 StatCard, Skeleton, Tabs, Dropdown, icons
 ├── context/      ThemeContext, AuthContext, ToastContext
 ├── lib/          utils (cn), usePagination, mockData
 ├── pages/        Login, Dashboard, Items, Settings

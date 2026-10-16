@@ -17,8 +17,23 @@ import {
   type Item,
   type ItemStatus,
 } from '../lib/mockData'
-import { IconInbox, IconPencil, IconPlus, IconSearch, IconTrash } from '../components/ui/icons'
+import {
+  IconDotsVertical,
+  IconInbox,
+  IconPencil,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from '../components/ui/icons'
 import { useToast } from '../context/ToastContext'
+import { SkeletonTable } from '../components/ui/Skeleton'
+import {
+  Dropdown,
+  DropdownDivider,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from '../components/ui/Dropdown'
 
 const TONE: Record<ItemStatus, BadgeTone> = {
   activo: 'success',
@@ -63,6 +78,7 @@ export function ItemsPage() {
   const [busqueda, setBusqueda] = useState('')
   const [categoria, setCategoria] = useState('todas')
   const [estado, setEstado] = useState('todos')
+  const [loading, setLoading] = useState(false)
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({
     key: 'id',
     dir: 'asc',
@@ -71,6 +87,28 @@ export function ItemsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Item | null>(null)
   const [toDelete, setToDelete] = useState<Item | null>(null)
+
+  function simulateReload() {
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      toast.info('Inventario sincronizado correctamente.')
+    }, 600)
+  }
+
+  function duplicate(item: Item) {
+    const id = Math.max(0, ...items.map((i) => i.id)) + 1
+    const copy: Item = {
+      ...item,
+      id,
+      nombre: `${item.nombre} (Copia)`,
+      fecha: new Date().toISOString().slice(0, 10),
+    }
+    setItems((list) => [copy, ...list])
+    toast.success(`Se creó una copia de "${item.nombre}".`, {
+      title: 'Elemento duplicado',
+    })
+  }
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase()
@@ -143,9 +181,14 @@ export function ItemsPage() {
         title="Elementos"
         description="Gestiona el inventario de elementos del sistema."
         actions={
-          <Button leftIcon={<IconPlus size={16} />} onClick={openCreate}>
-            Nuevo elemento
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={simulateReload} disabled={loading}>
+              {loading ? 'Cargando…' : 'Simular Carga'}
+            </Button>
+            <Button leftIcon={<IconPlus size={16} />} onClick={openCreate}>
+              Nuevo elemento
+            </Button>
+          </div>
         }
       />
 
@@ -196,7 +239,11 @@ export function ItemsPage() {
           )}
         </div>
 
-        {pager.total === 0 ? (
+        {loading ? (
+          <div className="p-4">
+            <SkeletonTable rows={7} columns={5} />
+          </div>
+        ) : pager.total === 0 ? (
           <EmptyState
             icon={<IconInbox size={22} />}
             title="Sin resultados"
@@ -233,7 +280,7 @@ export function ItemsPage() {
                       </button>
                     </Th>
                   ))}
-                  <Th className="w-24 text-right">Acciones</Th>
+                  <Th className="w-20 text-right">Acciones</Th>
                 </tr>
               </THead>
               <TBody>
@@ -247,21 +294,45 @@ export function ItemsPage() {
                     </Td>
                     <Td className="text-ink-muted">{it.fecha}</Td>
                     <Td className="text-right">
-                      <div className="inline-flex gap-1">
+                      <div className="inline-flex items-center justify-end gap-1">
                         <button
                           onClick={() => openEdit(it)}
                           aria-label="Editar"
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink"
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors"
                         >
-                          <IconPencil size={16} />
+                          <IconPencil size={15} />
                         </button>
-                        <button
-                          onClick={() => setToDelete(it)}
-                          aria-label="Eliminar"
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
-                        >
-                          <IconTrash size={16} />
-                        </button>
+
+                        <Dropdown>
+                          <DropdownTrigger
+                            aria-label="Más opciones"
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-muted hover:text-ink transition-colors"
+                          >
+                            <IconDotsVertical size={15} />
+                          </DropdownTrigger>
+                          <DropdownMenu width="w-36" align="right">
+                            <DropdownItem
+                              icon={<IconPencil size={14} />}
+                              onClick={() => openEdit(it)}
+                            >
+                              Editar
+                            </DropdownItem>
+                            <DropdownItem
+                              icon={<IconPlus size={14} />}
+                              onClick={() => duplicate(it)}
+                            >
+                              Duplicar
+                            </DropdownItem>
+                            <DropdownDivider />
+                            <DropdownItem
+                              destructive
+                              icon={<IconTrash size={14} />}
+                              onClick={() => setToDelete(it)}
+                            >
+                              Eliminar
+                            </DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
                       </div>
                     </Td>
                   </Tr>

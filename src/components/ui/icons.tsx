@@ -145,3 +145,24 @@ export const IconInfo = (p: IconProps) => (
     <line x1="12" y1="8" x2="12.01" y2="8" />
   </Base>
 )
+
+export const IconUser = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </Base>
+)
+
+export const IconDotsVertical = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="1" />
+    <circle cx="12" cy="5" r="1" />
+    <circle cx="12" cy="19" r="1" />
+  </Base>
+)
+
+export const IconChevronDown = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Base>
+)
