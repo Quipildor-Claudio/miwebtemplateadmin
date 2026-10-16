@@ -17,9 +17,11 @@ tokens de diseño y la navegación.
   - ordenamiento por columna,
   - **paginacion**,
   - alta/edicion en modal y confirmacion de borrado.
-- **Componentes UI reutilizables**: Button, Input, Select, Badge, Card, Table,
-  Pagination, Modal, PageHeader, EmptyState, StatCard e iconos SVG propios.
-- **Ajustes** de perfil y apariencia.
+- **Componentes UI reutilizables**: Button, Input, Textarea, Select, Switch,
+  Checkbox, Badge, Card, Table, Pagination, Modal, PageHeader, EmptyState,
+  StatCard e iconos SVG propios.
+- **Sistema de notificaciones Toast**: `useToast()` (`toast.success`, `error`, `warning`, `info`) con animaciones fluidas y soporte claro/oscuro.
+- **Ajustes** de perfil, apariencia (tema), seguridad (2FA) y preferencias de notificación.
 
 ## Arrancar
 
@@ -48,13 +50,14 @@ Demo de login: cualquier correo/contrasena (viene precargado).
 src/
 ├── components/
 │   ├── layout/   AppLayout, Sidebar, Topbar, MobileNav, navItems
-│   └── ui/       Button, Input, Select, Badge, Card, Table,
-│                 Pagination, Modal, PageHeader, EmptyState, StatCard, icons
-├── context/      ThemeContext, AuthContext
+│   └── ui/       Button, Input, Textarea, Select, Switch, Checkbox, Badge,
+│                 Card, Table, Pagination, Modal, PageHeader, EmptyState,
+│                 StatCard, icons
+├── context/      ThemeContext, AuthContext, ToastContext
 ├── lib/          utils (cn), usePagination, mockData
 ├── pages/        Login, Dashboard, Items, Settings
 ├── App.tsx       Rutas y proteccion de acceso
-└── main.tsx      Providers + Router
+└── main.tsx      Providers (Theme, Auth, Toast) + Router
 ```
 
 ## Convenciones

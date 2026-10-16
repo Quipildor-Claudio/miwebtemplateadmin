@@ -18,6 +18,7 @@ import {
   type ItemStatus,
 } from '../lib/mockData'
 import { IconInbox, IconPencil, IconPlus, IconSearch, IconTrash } from '../components/ui/icons'
+import { useToast } from '../context/ToastContext'
 
 const TONE: Record<ItemStatus, BadgeTone> = {
   activo: 'success',
@@ -57,6 +58,7 @@ const COLUMNS: { key: SortKey; label: string; className?: string }[] = [
 ]
 
 export function ItemsPage() {
+  const toast = useToast()
   const [items, setItems] = useState<Item[]>(ITEMS)
   const [busqueda, setBusqueda] = useState('')
   const [categoria, setCategoria] = useState('todas')
@@ -110,15 +112,26 @@ export function ItemsPage() {
   function save(data: Omit<Item, 'id'>) {
     if (editing) {
       setItems((list) => list.map((it) => (it.id === editing.id ? { ...editing, ...data } : it)))
+      toast.success(`"${data.nombre}" se actualizó correctamente.`, {
+        title: 'Elemento actualizado',
+      })
     } else {
       const id = Math.max(0, ...items.map((i) => i.id)) + 1
       setItems((list) => [{ id, ...data }, ...list])
+      toast.success(`"${data.nombre}" se añadió al inventario.`, {
+        title: 'Elemento creado',
+      })
     }
     setModalOpen(false)
   }
 
   function confirmDelete() {
-    if (toDelete) setItems((list) => list.filter((it) => it.id !== toDelete.id))
+    if (toDelete) {
+      setItems((list) => list.filter((it) => it.id !== toDelete.id))
+      toast.info(`"${toDelete.nombre}" fue eliminado del sistema.`, {
+        title: 'Elemento eliminado',
+      })
+    }
     setToDelete(null)
   }
 
