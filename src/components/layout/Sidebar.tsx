@@ -2,19 +2,53 @@ import { NavLink } from 'react-router-dom'
 import { cn } from '../../lib/utils'
 import { useAuth } from '../../context/AuthContext'
 import { NAV_ITEMS } from './navItems'
-import { IconLogout } from '../ui/icons'
+import { IconLogout, IconSidebar } from '../ui/icons'
 
-export function Sidebar() {
+export interface SidebarProps {
+  open?: boolean
+  onToggle?: () => void
+}
+
+export function Sidebar({ open = true, onToggle }: SidebarProps) {
   const { user, logout } = useAuth()
 
   return (
-    <aside className="glass hidden w-60 shrink-0 flex-col border-r border-border lg:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-border px-5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-on-brand">
-          A
-        </span>
-        <span className="text-sm font-semibold text-ink">Panel</span>
-      </div>
+    <>
+      {/* Fondo oscuro traslúcido para móvil cuando se abre el sidebar */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden animate-fade-in"
+          onClick={onToggle}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={cn(
+          'glass z-40 shrink-0 flex-col border-r border-border transition-all duration-200',
+          // En escritorio:
+          open ? 'hidden lg:flex w-60' : 'hidden',
+          // En móvil (drawer flotante):
+          open && 'fixed inset-y-0 left-0 flex w-64 shadow-2xl lg:shadow-none lg:static',
+        )}
+      >
+        <div className="flex h-16 items-center gap-2 border-b border-border px-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-on-brand">
+            A
+          </span>
+          <span className="text-sm font-semibold text-ink">Panel</span>
+
+          {onToggle && (
+            <button
+              onClick={onToggle}
+              title="Ocultar barra lateral"
+              aria-label="Ocultar barra lateral"
+              className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink cursor-pointer"
+            >
+              <IconSidebar size={18} />
+            </button>
+          )}
+        </div>
 
       <nav className="flex-1 space-y-1 p-3">
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
@@ -56,5 +90,6 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   )
 }

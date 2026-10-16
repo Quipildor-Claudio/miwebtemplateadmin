@@ -6,8 +6,7 @@ tokens de diseño y la navegación.
 
 ## Que incluye
 
-- **Layout responsivo**: sidebar en escritorio y **barra de navegacion inferior
-  en movil** (`MobileNav`), sin configuracion extra.
+- **Layout responsivo y adaptable**: sidebar colapsable/ocultable con botón toggle tanto en barra superior como en cabecera del menú lateral, persistencia en `localStorage`, drawer en móvil, barra de navegación inferior (`MobileNav`) y área de contenido maximizada a ancho completo con márgenes reducidos.
 - **Tema claro/oscuro** persistente (`ThemeContext`).
 - **Autenticacion simulada** con ruta protegida (`AuthContext` + `RequireAuth`).
 - **Dashboard** con tarjetas de metricas, mini grafico y tabla de recientes.

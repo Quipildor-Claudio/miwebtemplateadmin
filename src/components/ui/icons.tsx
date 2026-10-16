@@ -174,3 +174,10 @@ export const IconDownload = (p: IconProps) => (
     <line x1="12" y1="15" x2="12" y2="3" />
   </Base>
 )
+
+export const IconSidebar = (p: IconProps) => (
+  <Base {...p}>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M9 3v18" />
+  </Base>
+)
